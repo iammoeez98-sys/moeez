@@ -1,0 +1,45 @@
+.curved-loop-jacket {
+  position: relative;
+  width: 100%;
+  height: 120px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: grab;
+  user-select: none;
+  touch-action: pan-y;
+}
+
+@media (max-width: 640px) {
+  .curved-loop-jacket {
+    height: 90px;
+  }
+}
+
+.curved-loop-jacket.is-dragging {
+  cursor: grabbing;
+}
+
+.curved-loop-svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.curved-loop-text-style {
+  font-family: var(--font-mono), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 1.15rem;
+  fill: #18181b;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+@media (max-width: 640px) {
+  .curved-loop-text-style {
+    font-size: 0.85rem;
+    letter-spacing: 0.14em;
+  }
+}
