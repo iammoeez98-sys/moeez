@@ -95,7 +95,7 @@ export function GlobalEasterEggs() {
               repeat: Infinity,
               ease: "easeInOut",
             }}
-            className="fixed bottom-5 right-5 z-40 pointer-events-none select-none -rotate-3 transform origin-right"
+            className="hidden lg:block fixed bottom-5 right-5 z-40 pointer-events-none select-none -rotate-3 transform origin-right"
           >
             <span className="font-[family-name:var(--font-handwriting)] text-base sm:text-lg font-semibold text-zinc-400">
               Psst — try pressing G or Ctrl+Z 👀

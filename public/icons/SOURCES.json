@@ -1,0 +1,14 @@
+{
+  "figma": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/figma/figma-original.svg",
+  "slack": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/slack/slack-original.svg",
+  "jira": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/jira/jira-original.svg",
+  "photoshop": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/photoshop/photoshop-original.svg",
+  "illustrator": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/illustrator/illustrator-plain.svg",
+  "aftereffects": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/aftereffects/aftereffects-original.svg",
+  "claude": "https://unpkg.com/@lobehub/icons-static-svg@latest/icons/claude-color.svg",
+  "cursor": "https://unpkg.com/@lobehub/icons-static-svg@latest/icons/cursor.svg",
+  "antigravity": "https://unpkg.com/@lobehub/icons-static-svg@latest/icons/antigravity-color.svg",
+  "v0": "https://unpkg.com/@lobehub/icons-static-svg@latest/icons/v0.svg",
+  "lovable": "https://unpkg.com/@lobehub/icons-static-svg@latest/icons/lovable-color.svg",
+  "openai": "https://unpkg.com/@lobehub/icons-static-svg@latest/icons/openai.svg"
+}

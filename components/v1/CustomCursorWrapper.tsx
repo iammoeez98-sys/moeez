@@ -9,7 +9,7 @@ export function CustomCursorWrapper({ children }: { children: React.ReactNode })
 
   useEffect(() => {
     // Media query check for fine pointer / desktop mouse
-    const mediaQuery = window.matchMedia("(hover: hover) and (pointer: fine)");
+    const mediaQuery = window.matchMedia("(min-width: 1024px) and (hover: hover) and (pointer: fine)");
     setIsFinePointer(mediaQuery.matches);
 
     const handleChange = (e: MediaQueryListEvent) => {
@@ -36,13 +36,10 @@ export function CustomCursorWrapper({ children }: { children: React.ReactNode })
     };
   }, []);
 
-  if (!isFinePointer) {
-    return <>{children}</>;
-  }
 
   return (
     <div className="relative w-full min-h-screen">
-      <CursorProvider className="pointer-events-none">
+      {isFinePointer && <CursorProvider className="pointer-events-none">
         <Cursor>
           <div className="w-2.5 h-2.5 rounded-full bg-black shadow-xs pointer-events-none" />
         </Cursor>
@@ -59,7 +56,7 @@ export function CustomCursorWrapper({ children }: { children: React.ReactNode })
             }`}
           />
         </CursorFollow>
-      </CursorProvider>
+      </CursorProvider>}
       {children}
     </div>
   );
