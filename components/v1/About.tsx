@@ -67,7 +67,7 @@ export function About() {
         {/* Part 1: Scroll-Highlighted Paragraph */}
         <div ref={containerRef} className="max-w-5xl mb-8 sm:mb-10 md:mb-12" suppressHydrationWarning>
           {mounted ? (
-            <p className="font-[family-name:var(--font-sans)] font-semibold text-2xl sm:text-3xl md:text-4xl lg:text-5xl tracking-tight leading-[1.22] text-zinc-950">
+            <p className="font-[family-name:var(--font-sans)] font-semibold text-[18px] sm:text-3xl md:text-4xl lg:text-5xl tracking-tight leading-[1.3] text-zinc-950">
               {words.map((word, i) => {
                 const start = i / words.length;
                 const end = start + 1 / words.length;
@@ -79,7 +79,7 @@ export function About() {
               })}
             </p>
           ) : (
-            <p className="font-[family-name:var(--font-sans)] font-semibold text-2xl sm:text-3xl md:text-4xl lg:text-5xl tracking-tight leading-[1.22] text-zinc-300">
+            <p className="font-[family-name:var(--font-sans)] font-semibold text-[18px] sm:text-3xl md:text-4xl lg:text-5xl tracking-tight leading-[1.3] text-zinc-300">
               {paragraphText}
             </p>
           )}

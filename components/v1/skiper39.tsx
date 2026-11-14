@@ -52,13 +52,14 @@ const CrowdCanvas = ({ src, rows = 15, cols = 7 }: CrowdCanvasProps) => {
     // TWEEN FACTORIES
     const resetPeep = ({ stage, peep }: { stage: any; peep: any }) => {
       const direction = Math.random() > 0.5 ? 1 : -1;
-      const offsetY = 100 - 250 * gsap.parseEase("power2.in")(Math.random());
+      const compact = stage.width < 1024;
+      const offsetY = compact ? peep.height * (0.35 - 0.55 * Math.random()) : 100 - 250 * gsap.parseEase("power2.in")(Math.random());
       let startY = stage.height - peep.height + offsetY;
 
       // NO-ENTRY EXCLUSION ZONE CONSTRAINT:
       // Ensure no crowd sprite head enters the horizontal band above stage.height * 0.37
       // 12px buffer accounts for the walking animation bobbing (y: startY - 10)
-      const topCeiling = stage.height * 0.37;
+      const topCeiling = stage.height * (compact ? 0.25 : 0.37);
       const minYAllowed = topCeiling + 12;
       if (startY < minYAllowed) {
         startY = minYAllowed;
@@ -233,7 +234,8 @@ const CrowdCanvas = ({ src, rows = 15, cols = 7 }: CrowdCanvasProps) => {
     };
 
     const initCrowd = () => {
-      while (availablePeeps.length) {
+      const limit = stage.width < 1024 ? Math.max(12, Math.round(stage.width / 22)) : availablePeeps.length;
+      while (availablePeeps.length && crowd.length < limit) {
         addPeepToCrowd().walk.progress(Math.random());
       }
     };
@@ -278,7 +280,7 @@ const CrowdCanvas = ({ src, rows = 15, cols = 7 }: CrowdCanvasProps) => {
     };
 
     const resize = () => {
-      if (!canvas) return;
+      if (!canvas || !img.complete || !img.naturalWidth) return;
       const dpr = window.devicePixelRatio || 1;
       stage.width = canvas.clientWidth;
       stage.height = canvas.clientHeight;
@@ -291,7 +293,10 @@ const CrowdCanvas = ({ src, rows = 15, cols = 7 }: CrowdCanvasProps) => {
 
       crowd.length = 0;
       populateAvailablePool();
-
+      if (stage.width < 1024) {
+        const targetHeight = Math.min(310, Math.max(250, stage.width * 0.72), stage.height * 0.82);
+        availablePeeps.forEach((peep) => { peep.width = peep.rect[2] * targetHeight / peep.rect[3]; peep.height = targetHeight; });
+      }
       initCrowd();
     };
 
@@ -330,12 +335,13 @@ const CrowdCanvas = ({ src, rows = 15, cols = 7 }: CrowdCanvasProps) => {
       gsap.ticker.add(render);
     }
 
-    const handleResize = () => resize();
-    window.addEventListener("resize", handleResize);
+    const resizeObserver = new ResizeObserver(() => resize());
+    resizeObserver.observe(canvas);
 
     return () => {
-      if (canvas) observer.unobserve(canvas);
-      window.removeEventListener("resize", handleResize);
+      img.onload = null;
+      observer.disconnect();
+      resizeObserver.disconnect();
       gsap.ticker.remove(render);
       crowd.forEach((peep) => {
         if (peep.walk) peep.walk.kill();
@@ -412,7 +418,7 @@ const Skiper39 = () => {
   };
 
   return (
-    <div className="relative h-full w-full bg-white text-black min-h-screen overflow-hidden" suppressHydrationWarning>
+    <div className="hero-scene relative h-full w-full bg-white text-black min-h-screen overflow-hidden" suppressHydrationWarning>
       {/* Easter Egg Crowd Label Pointer */}
       <AnimatePresence>
         {activeLabel && (
@@ -438,12 +444,12 @@ const Skiper39 = () => {
 
       {/* Hero Text Header with BlurText Animation */}
       {mounted && (
-        <div 
-          className="absolute top-16 sm:top-24 md:top-28 left-5 sm:left-12 md:left-16 lg:left-24 max-w-[90vw] sm:max-w-[48vw] lg:max-w-[42vw] xl:max-w-[45vw] z-30 pointer-events-none select-none" 
+        <div
+          className="hero-copy absolute top-16 sm:top-24 md:top-28 left-6 sm:left-12 md:left-16 lg:left-24 max-w-[calc(100vw-48px)] sm:max-w-[48vw] lg:max-w-[42vw] xl:max-w-[45vw] z-30 pointer-events-none select-none"
           suppressHydrationWarning
         >
           {/* Animated Hero Headline via BlurText */}
-          <h1 className="hero-headline-text font-[family-name:var(--font-display)] font-extrabold text-[1.75rem] xs:text-3xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl text-zinc-950 tracking-tight leading-[1.08] drop-shadow-sm flex flex-col items-start gap-1">
+          <h1 className="hero-headline-text font-[family-name:var(--font-display)] font-extrabold text-[24px] sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl text-zinc-950 tracking-tight leading-[1.12] drop-shadow-sm flex flex-col items-start gap-0.5 sm:gap-1">
             <BlurText
               text="One face in every crowd"
               animateBy="words"
@@ -466,13 +472,13 @@ const Skiper39 = () => {
           </h1>
 
           {/* Signature / Attribution Line (Line 3) - Smooth fade in after headline reveal */}
-          <p 
-            className={`hero-signature-text mt-2.5 sm:mt-4 text-xs xs:text-sm sm:text-sm md:text-base font-medium text-zinc-500 tracking-wide flex items-center gap-2 transition-opacity duration-700 ${
+          <p
+            className={`hero-signature-text mt-2 sm:mt-4 text-[14px] sm:text-sm md:text-base font-medium text-zinc-500 tracking-wide flex items-center gap-2 transition-opacity duration-700 ${
               headlineDone ? "opacity-100" : "opacity-0"
             }`}
           >
-            <span className="inline-block w-4 sm:w-5 h-px bg-zinc-400 opacity-60"></span>
-            — Moiz Tahir, UI/UX Designer
+
+            Moiz Tahir, UI/UX Designer
           </p>
         </div>
       )}
@@ -480,7 +486,7 @@ const Skiper39 = () => {
       {/* Easter Egg Discovery Trigger / Inline Form in Upper-Right Open White Space */}
       {mounted && (
         <div
-          className={`absolute top-20 sm:top-24 md:top-28 right-5 sm:right-12 md:right-16 lg:right-24 xl:right-32 z-30 pointer-events-auto select-none transition-opacity duration-700 ${
+          className={`hero-invitation absolute top-20 sm:top-24 md:top-28 right-5 sm:right-12 md:right-16 lg:right-24 xl:right-32 z-30 pointer-events-auto select-none transition-opacity duration-700 ${
             headlineDone ? "opacity-100" : "opacity-0"
           }`}
         >
@@ -490,7 +496,7 @@ const Skiper39 = () => {
               className="font-[family-name:var(--font-handwriting)] text-base sm:text-lg md:text-xl font-semibold text-zinc-400 hover:text-zinc-800 transition-colors flex items-center gap-1 group cursor-pointer -rotate-3 hover:-rotate-1 transform origin-right"
             >
               <span className="group-hover:underline decoration-zinc-400 underline-offset-4">
-                psst — think you belong in this crowd? →
+                <span className="hidden lg:inline">psst — think you belong in this crowd? →</span><span className="lg:hidden">Join the crowd <span aria-hidden="true">＋</span></span>
               </span>
             </button>
           ) : (
@@ -532,11 +538,17 @@ const Skiper39 = () => {
 
       {/* Dominant Foreground Character - Standing flush at bottom baseline with Hover to Wave & Tooltip */}
       {mounted && (
-        <div 
-          className="absolute bottom-[-8px] sm:bottom-0 left-1/2 sm:left-[66%] md:left-[68%] lg:left-[65%] -translate-x-1/2 z-20 flex flex-col items-center justify-end pointer-events-auto cursor-pointer select-none group p-2" 
+        <div
+          className="hero-character absolute bottom-[-8px] sm:bottom-0 left-1/2 sm:left-[66%] md:left-[68%] lg:left-[65%] -translate-x-1/2 z-20 flex flex-col items-center justify-end pointer-events-auto cursor-pointer select-none group p-2"
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
+          onFocus={() => setIsHovered(true)}
+          onBlur={() => setIsHovered(false)}
           onClick={scrollToWork}
+          role="button"
+          tabIndex={0}
+          aria-label="Explore my work"
+          onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); scrollToWork(); } }}
           suppressHydrationWarning
         >
           {/* Animated Speech Bubble Tooltip positioned to the LEFT of the character */}
@@ -547,7 +559,7 @@ const Skiper39 = () => {
                 animate={{ opacity: 1, scale: 1, x: 0 }}
                 exit={{ opacity: 0, scale: 0.85, x: 12 }}
                 transition={{ duration: 0.2, ease: "easeOut" }}
-                className="absolute top-4 sm:top-8 right-[98%] mr-2 sm:mr-3 z-30 whitespace-nowrap pointer-events-auto"
+                className="hero-tooltip absolute top-4 sm:top-8 right-[98%] mr-2 sm:mr-3 z-30 whitespace-nowrap pointer-events-auto"
                 onClick={scrollToWork}
               >
                 <div className="relative bg-white text-zinc-950 px-4 sm:px-5 py-2.5 rounded-2xl border-2 border-zinc-900 shadow-2xl flex flex-col items-center text-center">
@@ -569,45 +581,45 @@ const Skiper39 = () => {
           <div className="absolute top-[8%] left-1/2 -translate-x-1/2 w-56 h-56 sm:w-72 sm:h-72 md:w-96 md:h-96 rounded-full bg-gradient-to-b from-amber-100/70 via-slate-200/50 to-transparent blur-3xl -z-10 pointer-events-none opacity-90" />
 
           {/* Character Container with 100% Identical Height & Body Proportions */}
-          <div className="relative h-[52vh] sm:h-[55vh] md:h-[60vh] lg:h-[62vh] max-h-[520px] w-auto flex items-end justify-center">
-            {/* Default Pose */}
+          <div className="hero-character-size relative h-[52vh] sm:h-[55vh] md:h-[60vh] lg:h-[62vh] max-h-[520px] w-auto flex items-end justify-center">
+            {/* Both poses share the same scale; their source head-to-body proportions match */}
             <img
               src="/images/self-character.png"
               alt="Self Character Default"
-              className={`h-full w-auto object-contain object-bottom drop-shadow-[0_0_16px_rgba(255,255,255,0.95)] drop-shadow-[0_0_30px_rgba(255,255,255,0.6)] drop-shadow-[0_16px_32px_rgba(0,0,0,0.22)] transition-opacity duration-200 ease-in-out ${
+              className={`h-full w-auto max-w-none scale-[1.15] origin-bottom object-contain object-bottom drop-shadow-[0_0_16px_rgba(255,255,255,0.95)] drop-shadow-[0_0_30px_rgba(255,255,255,0.6)] drop-shadow-[0_16px_32px_rgba(0,0,0,0.22)] transition-opacity duration-200 ease-in-out ${
                 isHovered ? "opacity-0" : "opacity-100"
               }`}
             />
 
-            {/* Waving Pose - Max-w-none & -5.5px left shift ensures 100% identical body alignment */}
+            {/* Waving Pose */}
             <img
               src="/images/waving-character.png"
               alt="Self Character Waving"
-              className={`absolute bottom-0 left-1/2 -translate-x-[calc(50%+5.5px)] h-full w-auto max-w-none object-contain object-bottom drop-shadow-[0_0_16px_rgba(255,255,255,0.95)] drop-shadow-[0_0_30px_rgba(255,255,255,0.6)] drop-shadow-[0_16px_32px_rgba(0,0,0,0.22)] transition-opacity duration-200 ease-in-out ${
+              className={`absolute bottom-0 left-1/2 -translate-x-[56%] h-full w-auto max-w-none scale-[1.15] origin-bottom object-contain object-bottom drop-shadow-[0_0_16px_rgba(255,255,255,0.95)] drop-shadow-[0_0_30px_rgba(255,255,255,0.6)] drop-shadow-[0_16px_32px_rgba(0,0,0,0.22)] transition-opacity duration-200 ease-in-out ${
                 isHovered ? "opacity-100" : "opacity-0"
               }`}
             />
           </div>
 
           {/* Soft flat dark ellipse drop shadow under feet flush with crowd baseline */}
-          <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-40 sm:w-56 md:w-72 h-4 sm:h-6 bg-black/40 rounded-[50%] blur-[6px] -z-10" />
+          <div className="hero-ground-shadow absolute bottom-0 left-1/2 -translate-x-1/2 w-40 sm:w-56 md:w-72 h-4 sm:h-6 bg-black/40 rounded-[50%] blur-[6px] -z-10" />
         </div>
       )}
 
       {/* Subtle Top White Gradient Overlay */}
-      <div 
-        className="absolute top-0 left-0 right-0 h-28 sm:h-36 bg-gradient-to-b from-white via-white/80 to-transparent z-10 pointer-events-none" 
-        suppressHydrationWarning 
+      <div
+        className="absolute top-0 left-0 right-0 h-28 sm:h-36 bg-gradient-to-b from-white via-white/80 to-transparent z-10 pointer-events-none"
+        suppressHydrationWarning
       />
 
       {/* Subtle Bottom White Gradient Transition (between 1st section and 2nd section) */}
-      <div 
-        className="absolute bottom-0 left-0 right-0 h-24 sm:h-32 bg-gradient-to-t from-white via-white/75 to-transparent z-10 pointer-events-none" 
-        suppressHydrationWarning 
+      <div
+        className="hero-bottom-fade absolute bottom-0 left-0 right-0 pointer-events-none"
+        suppressHydrationWarning
       />
 
       {/* Crowd Canvas at bottom */}
-      <div className="absolute bottom-[-10px] sm:bottom-0 h-full w-full z-0 overflow-hidden" suppressHydrationWarning>
+      <div className="hero-crowd absolute bottom-0 h-full w-full z-0 overflow-hidden" suppressHydrationWarning>
         {mounted && <CrowdCanvas src="/images/peeps/all-peeps.png" rows={15} cols={7} />}
       </div>
     </div>

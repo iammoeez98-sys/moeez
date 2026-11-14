@@ -94,8 +94,10 @@ export function Navbar() {
           {/* Mobile Menu Toggle Button */}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="md:hidden p-1.5 text-zinc-900 hover:text-black focus:outline-none"
+            className="md:hidden min-w-11 min-h-11 flex items-center justify-center text-zinc-900 hover:text-black focus:outline-none"
             aria-label="Toggle Navigation Menu"
+            aria-expanded={mobileMenuOpen}
+            aria-controls="mobile-navigation"
             suppressHydrationWarning
           >
             {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -105,14 +107,14 @@ export function Navbar() {
 
       {/* Mobile Menu Overlay */}
       {mobileMenuOpen && (
-        <div className="md:hidden bg-white/95 backdrop-blur-lg border-b border-zinc-200/80 px-6 py-6 transition-all duration-200 shadow-sm" suppressHydrationWarning>
+        <div id="mobile-navigation" className="md:hidden bg-white/95 backdrop-blur-lg border-b border-zinc-200/80 px-6 py-6 transition-all duration-200 shadow-sm" suppressHydrationWarning>
           <nav className="flex flex-col gap-4" suppressHydrationWarning>
             {navLinks.map((link) => (
               <a
                 key={link.name}
                 href={link.href}
                 onClick={() => setMobileMenuOpen(false)}
-                className="text-base font-medium text-zinc-800 hover:text-black py-1"
+                className="text-base font-medium text-zinc-800 hover:text-black py-3"
                 suppressHydrationWarning
               >
                 {link.name}

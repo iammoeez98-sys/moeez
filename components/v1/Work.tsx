@@ -19,6 +19,9 @@ interface Project {
 }
 
 const projects: Project[] = [
+{"title":"VANTA","subtitle":"Digital Banking Mobile App UI/UX Design","image":"https://mir-s3-cdn-cf.behance.net/projects/max_808_webp/6b80d2258389133.Y3JvcCw0MjAwLDMyODUsMCwxMA.png","href":"https://www.behance.net/gallery/258389133/VANTA-Digital-Banking-Mobile-App-UIUX-Design"},
+{"title":"ESTORA","subtitle":"Property Management Dashboard | UI/UX Design","image":"https://mir-s3-cdn-cf.behance.net/projects/max_808_webp/a69b8a258260469.Y3JvcCw0OTAwLDM4MzIsMCww.png","href":"https://www.behance.net/gallery/258260469/ESTORA-Property-Management-Dashboard-UIUX-Design"},
+{"title":"FORMA","subtitle":"AI Fitness App | UI/UX Design","image":"https://mir-s3-cdn-cf.behance.net/projects/max_808_webp/4c3e60258213389.Y3JvcCwzNTU5LDI3ODMsMCw2MQ.png","href":"https://www.behance.net/gallery/258213389/FORMA-AI-Fitness-App-UIUX-Design"},
   {
     title: "PEAK",
     subtitle: "Protein Drink Branding & Web Design",
@@ -69,6 +72,7 @@ const getWrappedOffset = (idx: number, activeProgress: number, total: number) =>
 };
 
 export function Work() {
+  const mobileTrackRef = useRef<HTMLDivElement>(null);
   const sectionRef = useRef<HTMLDivElement>(null);
   const stRef = useRef<ScrollTrigger | null>(null);
 
@@ -90,7 +94,7 @@ export function Work() {
   useEffect(() => {
     setMounted(true);
     const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
+      setIsMobile(window.matchMedia("(max-width: 1023px), (pointer: coarse), (max-height: 600px)").matches);
     };
     checkMobile();
     window.addEventListener("resize", checkMobile);
@@ -125,13 +129,16 @@ export function Work() {
   }, [mounted, isMobile, numProjects]);
 
   // Continuous, seamless loop handlers (ZIJ -> PEAK slides forward without scroll jump)
-  const handlePrev = () => {
-    setProgressVal((prev) => prev - 1);
+  const moveProject = (direction: number) => {
+    if (isMobile && mobileTrackRef.current) {
+      const track = mobileTrackRef.current;
+      const index = (normalizedIndex + direction + numProjects) % numProjects;
+      const card = track.children[index] as HTMLElement;
+      track.scrollTo({ left: card.offsetLeft - (track.clientWidth - card.clientWidth) / 2, behavior: "smooth" });
+    } else { setProgressVal((prev) => prev + direction); }
   };
-
-  const handleNext = () => {
-    setProgressVal((prev) => prev + 1);
-  };
+  const handlePrev = () => moveProject(-1);
+  const handleNext = () => moveProject(1);
 
   // Drag Event Handlers (Natural direction: drag left moves cards left)
   const handleMouseDown = (e: React.MouseEvent) => {
@@ -232,7 +239,7 @@ export function Work() {
             <div className="absolute -top-4 -bottom-4 -right-6 sm:-right-12 md:-right-16 lg:-right-24 w-36 sm:w-52 md:w-72 lg:w-96 xl:w-[440px] bg-gradient-to-l from-white via-white/95 to-transparent z-25 pointer-events-none" />
 
             <div
-              className="relative w-[270px] sm:w-[310px] md:w-[330px] lg:w-[350px] xl:w-[370px] h-[320px] sm:h-[350px] md:h-[370px] lg:h-[390px] xl:h-[410px] flex items-center justify-center"
+              className="relative w-[min(42vw,480px)] aspect-[4/3] flex items-center justify-center"
               style={{ transformStyle: "preserve-3d" }}
             >
               {projects.map((project, idx) => {
@@ -248,7 +255,7 @@ export function Work() {
                 const dragFactor = isDragging ? dragDeltaX / 320 : 0;
                 const effectiveOffset = baseOffset + dragFactor;
 
-                const translateX = effectiveOffset * 320; // horizontal separation
+                const translateX = effectiveOffset * 400; // horizontal separation
                 const translateZ = -Math.abs(effectiveOffset) * 120; // depth offset
                 const rotateY = effectiveOffset * -25; // 3D rotation angle
                 const scale = Math.max(0.75, 1 - Math.abs(effectiveOffset) * 0.1);
@@ -277,7 +284,7 @@ export function Work() {
                       willChange: "transform, opacity",
                       transformStyle: "preserve-3d",
                     }}
-                    className={`absolute inset-0 rounded-2xl bg-zinc-900 border border-zinc-200/80 shadow-2xl transition-all duration-300 ease-out overflow-hidden ${
+                    className={`group/project absolute inset-0 rounded-2xl bg-zinc-900 border border-zinc-200/80 shadow-2xl transition-all duration-300 ease-out overflow-hidden ${
                       isActive ? "ring-2 ring-zinc-950/15 pointer-events-auto" : "pointer-events-auto"
                     }`}
                   >
@@ -294,7 +301,7 @@ export function Work() {
 
                     {/* Active Card ONLY: Single layer dark gradient overlay & Text */}
                     {isActive && (
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent flex flex-col justify-end p-5 sm:p-6 md:p-7 z-20 rounded-2xl">
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/35 to-transparent flex flex-col justify-end p-5 sm:p-6 md:p-7 z-20 rounded-2xl opacity-0 transition-opacity duration-200 group-hover/project:opacity-100 group-focus-within/project:opacity-100">
                         <motion.div
                           key={project.title}
                           initial={{ opacity: 0, y: 15 }}
@@ -316,7 +323,7 @@ export function Work() {
                             onClick={(e) => e.stopPropagation()}
                             className="mt-2 sm:mt-3 inline-flex items-center gap-2 px-4 sm:px-5 py-2 sm:py-2.5 rounded-full bg-white text-zinc-950 font-mono text-xs font-bold tracking-wider uppercase hover:bg-zinc-100 transition-colors shadow-lg active:scale-95 cursor-pointer"
                           >
-                            <span>View Case</span>
+                            <span>View case study</span>
                             <ArrowUpRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-zinc-950" />
                           </a>
                         </motion.div>
@@ -357,7 +364,7 @@ export function Work() {
                   Selected Work
                 </span>
               </div>
-              <h2 className="font-[family-name:var(--font-display)] font-extrabold text-[26px] text-zinc-950 tracking-tight leading-none">
+              <h2 className="font-[family-name:var(--font-display)] font-extrabold text-[24px] text-zinc-950 tracking-tight leading-none">
                 Explore the work
               </h2>
             </div>
@@ -370,53 +377,41 @@ export function Work() {
           </div>
 
           {/* Mobile Scroll-Snap Container */}
-          <div className="flex overflow-x-auto snap-x snap-mandatory gap-5 pb-4 -mx-6 px-6 scrollbar-none">
-            {projects.map((project, idx) => (
-              <div
-                key={idx}
-                className="snap-center shrink-0 w-[290px] sm:w-[320px] rounded-2xl bg-zinc-900 border border-zinc-200/90 shadow-md overflow-hidden relative aspect-[3/4] flex flex-col justify-end p-6"
-              >
-                <Image
-                  src={project.image}
-                  alt={project.title}
-                  fill
-                  sizes="320px"
-                  unoptimized
-                  className="object-cover object-center"
-                  loading="lazy"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 to-transparent z-10" />
-                <div className="relative z-20 flex flex-col items-start gap-2">
-                  <span className="font-mono text-[10px] font-semibold tracking-widest text-zinc-300 uppercase">
-                    {project.subtitle}
-                  </span>
-                  <h3 className="font-sans font-bold text-xl text-white tracking-tight leading-snug">
-                    {project.title}
-                  </h3>
-                  <a
-                    href={project.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="mt-2 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white text-zinc-950 font-mono text-xs font-bold tracking-wider uppercase shadow-md"
-                  >
-                    <span>View Case</span>
-                    <ArrowUpRight className="w-4 h-4 text-zinc-950" />
-                  </a>
+          <div ref={mobileTrackRef} aria-label="Selected projects"
+            onScroll={(event) => {
+              const track = event.currentTarget;
+              const center = track.scrollLeft + track.clientWidth / 2;
+              const cards = Array.from(track.children) as HTMLElement[];
+              const nearest = cards.reduce((best, card, index) => Math.abs(card.offsetLeft + card.clientWidth / 2 - center) < Math.abs(cards[best].offsetLeft + cards[best].clientWidth / 2 - center) ? index : best, 0);
+              setProgressVal(nearest);
+            }}
+            className="relative flex overflow-x-auto snap-x snap-mandatory gap-5 pb-4 -mx-6 px-6 sm:-mx-12 sm:px-12 scroll-px-6 sm:scroll-px-12 overscroll-x-contain">
+            {projects.map((project) => (
+              <a key={project.href} href={project.href} target="_blank" rel="noopener noreferrer"
+                className="snap-center shrink-0 w-[calc(100vw-48px)] max-w-[360px] group/project block rounded-2xl bg-white text-zinc-950">
+                <div className="relative aspect-[4/3] overflow-hidden rounded-2xl border border-zinc-200 bg-zinc-100">
+                  <Image src={project.image} alt={project.title} fill sizes="(max-width: 408px) calc(100vw - 48px), 360px" unoptimized className="object-cover object-center" loading="lazy" />
                 </div>
-              </div>
-            ))}
-          </div>
+                <div className="px-1 pt-4">
+                  <h3 className="font-sans text-xl font-bold leading-snug">{project.title}</h3>
+                  <p className="mt-1 text-sm leading-relaxed text-zinc-500">{project.subtitle}</p>
+                  <span className="mt-2 inline-flex min-h-11 items-center gap-2 text-sm font-semibold underline decoration-zinc-300 underline-offset-4">View case study <ArrowUpRight className="h-4 w-4" /></span>
+                </div>
+              </a>
+            ))}          </div>
 
           {/* Mobile Navigation Arrows */}
           <div className="flex items-center justify-center gap-3 pt-6 sm:pt-8">
             <button
               onClick={handlePrev}
+              aria-label="Previous project"
               className="w-11 h-11 rounded-full bg-zinc-950 text-white flex items-center justify-center shadow-md active:scale-95"
             >
               <ArrowLeft className="w-5 h-5" />
             </button>
             <button
               onClick={handleNext}
+              aria-label="Next project"
               className="w-11 h-11 rounded-full bg-zinc-950 text-white flex items-center justify-center shadow-md active:scale-95"
             >
               <ArrowRight className="w-5 h-5" />

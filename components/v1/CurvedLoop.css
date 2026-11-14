@@ -43,3 +43,9 @@
     letter-spacing: 0.14em;
   }
 }
+
+/* Preserve readable SVG lettering on small screens. */
+@media (max-width: 1023px) {
+ .curved-loop-svg { width: 1400px; min-width: 1400px; height: 120px; }
+ .curved-loop-text-style { font-size: 1rem; letter-spacing: 0.1em; }
+}

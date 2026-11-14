@@ -1,207 +1,86 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
-import { ArrowUpRight } from "lucide-react";
-import { motion } from "framer-motion";
-import { TextType } from "./TextType";
+import React, { useState } from "react";
+import { ArrowUpRight, Send, Copy, Check } from "lucide-react";
+import { FaInstagram, FaBehance, FaLinkedin } from "react-icons/fa6";
 
-interface SocialLink {
-  name: string;
-  href: string;
-}
-
-const socialLinks: SocialLink[] = [
-  { name: "Instagram", href: "https://www.instagram.com/moeezdesigns/" },
-  { name: "Behance", href: "https://www.behance.net/moiztahir36" },
-  { name: "LinkedIn", href: "https://www.linkedin.com/in/moiz-tahir-44266128a/" },
-  { name: "Arc.dev", href: "https://arc.dev/@moiztahir" },
+const socials = [
+  { name: "Instagram", href: "https://www.instagram.com/moeezdesigns/", Icon: FaInstagram },
+  { name: "Behance", href: "https://www.behance.net/moiztahir36", Icon: FaBehance },
+  { name: "LinkedIn", href: "https://www.linkedin.com/in/moiz-tahir-44266128a/", Icon: FaLinkedin },
 ];
 
 export function Contact() {
-  const [mounted, setMounted] = useState(false);
-  const [peekState, setPeekState] = useState<"hidden" | "peeking">("hidden");
-  const footerRef = useRef<HTMLElement>(null);
-  const hasPeekedRef = useRef(false);
+  const [status, setStatus] = useState<"idle" | "sending" | "success" | "error">("idle");
+  const [notice, setNotice] = useState("");
+  const [copied, setCopied] = useState(false);
+  const endpoint = process.env.NEXT_PUBLIC_FORMSPREE_ENDPOINT;
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  async function submit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (status === "sending") return;
+    const form = event.currentTarget;
+    if (!endpoint || !/^https:\/\/formspree\.io\/f\/[a-zA-Z0-9]+$/.test(endpoint)) {
+      setStatus("error");
+      setNotice("The form is temporarily unavailable. Please use the email or social links below. Your message has not been sent.");
+      return;
+    }
+    setStatus("sending");
+    setNotice("");
+    try {
+      const response = await fetch(endpoint, {
+        method: "POST",
+        body: new FormData(form),
+        headers: { Accept: "application/json" },
+        signal: AbortSignal.timeout(15000),
+      });
+      if (!response.ok) throw new Error("Unable to send");
+      setStatus("success");
+      setNotice("Thanks for reaching out! Your message has been sent.");
+      form.reset();
+    } catch {
+      setStatus("error");
+      setNotice("We couldn't confirm delivery. Your message is still here—please try again or use the email below.");
+    }
+  }
 
-  useEffect(() => {
-    const footerElem = footerRef.current;
-    if (!footerElem) return;
+  async function copyEmail() {
+    try { await navigator.clipboard.writeText("iammoeez@gmail.com"); setCopied(true); }
+    catch { setNotice("You can select and copy iammoeez@gmail.com below."); }
+  }
 
-    let isCancelled = false;
-
-    const startPeekLoop = async () => {
-      // Initial 1s delay when section scrolls into view
-      await new Promise((res) => setTimeout(res, 1000));
-
-      while (!isCancelled) {
-        // Slide in / Peek
-        setPeekState("peeking");
-        await new Promise((res) => setTimeout(res, 3800)); // Stay visible for 3.8s
-
-        if (isCancelled) return;
-
-        // Slide back out / Hide
-        setPeekState("hidden");
-        await new Promise((res) => setTimeout(res, 2000)); // Wait 2s hidden before repeating
-      }
-    };
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting && !hasPeekedRef.current) {
-          hasPeekedRef.current = true;
-          startPeekLoop();
-        }
-      },
-      { threshold: 0.35 }
-    );
-
-    observer.observe(footerElem);
-    return () => {
-      isCancelled = true;
-      observer.disconnect();
-    };
-  }, []);
-
+  const fieldClass = "mt-2 w-full rounded-xl border border-zinc-700 bg-zinc-900 px-4 py-3.5 text-base text-white placeholder:text-zinc-500 focus:border-white focus:outline-none focus:ring-1 focus:ring-white";
   return (
-    <footer
-      ref={footerRef}
-      id="contact"
-      className="relative w-full bg-[#0F0F0F] text-white pt-[136px] pb-[88px] sm:pt-[184px] sm:pb-[120px] md:pt-[200px] md:pb-[136px] select-none overflow-hidden"
-      suppressHydrationWarning
-    >
-      {/* Scroll-Triggered Peeking Character (Left Edge) */}
-      {mounted && (
-        <motion.div
-          initial={{ x: "-100%" }}
-          animate={{ x: peekState === "peeking" ? "0%" : "-100%" }}
-          transition={{ duration: 0.75, ease: [0.21, 0.47, 0.32, 0.98] }}
-          className="absolute left-0 top-[18%] sm:top-[20%] z-10 hidden sm:block pointer-events-none select-none"
-        >
-          <img
-            src="/images/peek-character.png"
-            alt="Peeking Character"
-            className="w-36 sm:w-44 md:w-52 lg:w-60 h-auto object-contain drop-shadow-2xl"
-          />
-        </motion.div>
-      )}
-      <div className="max-w-5xl mx-auto px-6 sm:px-12 md:px-16 flex flex-col items-center text-center" suppressHydrationWarning>
-        {/* Monospace Section Tag */}
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
-          className="flex items-center mb-4 sm:mb-6"
-        >
-          <span className="font-[family-name:var(--font-handwriting)] text-xl sm:text-2xl font-bold tracking-wide text-zinc-400">
-            Get in Touch
-          </span>
-        </motion.div>
-
-        {/* Large Bold Display Heading */}
-        <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6, delay: 0.1 }}
-          className="w-full flex justify-center"
-        >
-          <TextType
-            text={["Let's build something beautiful together."]}
-            as="h2"
-            typingSpeed={25}
-            deletingSpeed={18}
-            pauseDuration={2500}
-            loop={true}
-            showCursor={true}
-            hideCursorWhileTyping={false}
-            startOnVisible={true}
-            cursorCharacter="|"
-            className="font-[family-name:var(--font-display)] font-extrabold text-3xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-[84px] text-white tracking-tight leading-[1.05] max-w-4xl mb-8 sm:mb-12 min-h-[2.1em]"
-          />
-        </motion.div>
-
-        {/* Prominent Clickable Email Link with Left-to-Right Underline Hover Animation */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-          className="mb-4 sm:mb-6"
-        >
-          <a
-            href="mailto:iammoeez@gmail.com"
-            className="group relative inline-flex items-center gap-2 font-mono text-xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white tracking-tight transition-colors duration-300 hover:text-zinc-200"
-          >
-            <TextType
-              text={["iammoeez@gmail.com"]}
-              as="span"
-              typingSpeed={35}
-              loop={false}
-              showCursor={true}
-              hideCursorWhileTyping={true}
-              startOnVisible={true}
-              cursorCharacter="|"
-              initialDelay={400}
-            />
-            <ArrowUpRight className="w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 text-white group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform duration-300" />
-            <span className="absolute bottom-0 left-0 w-full h-[2px] sm:h-[3px] bg-white origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-300 ease-out" />
-          </a>
-        </motion.div>
-
-        {/* Secondary Phone Number Link */}
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5, delay: 0.25 }}
-          className="mb-12 sm:mb-16 md:mb-20"
-        >
-          <a
-            href="tel:+923044247985"
-            className="font-mono text-sm sm:text-base md:text-lg font-semibold text-[#A3A3A3] hover:text-white transition-colors tracking-widest"
-          >
-            +92 304 4247985
-          </a>
-        </motion.div>
-
-        {/* Social Links Row with Dash Dividers */}
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5, delay: 0.3 }}
-          className="flex flex-wrap items-center justify-center gap-3 sm:gap-6 md:gap-8 pt-8 border-t border-zinc-800/80 w-full"
-        >
-          {socialLinks.map((social, idx) => (
-            <React.Fragment key={social.name}>
-              {idx > 0 && (
-                <span className="text-zinc-600 font-mono text-xs select-none">•</span>
-              )}
-              <a
-                href={social.href}
-                target="_blank"
-                rel="noreferrer noopener"
-                className="group flex items-center gap-1.5 font-mono text-xs sm:text-sm font-bold tracking-widest text-[#A3A3A3] hover:text-white uppercase transition-colors"
-              >
-                <span>{social.name}</span>
-                <ArrowUpRight className="w-3.5 h-3.5 text-zinc-500 group-hover:text-white group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
-              </a>
-            </React.Fragment>
-          ))}
-        </motion.div>
-
-        {/* Copyright Footer */}
-        <div className="mt-12 sm:mt-16 text-center">
-          <p className="font-mono text-[11px] font-medium text-zinc-500 tracking-wider uppercase">
-            © {new Date().getFullYear()} Moiz Tahir. All rights reserved.
-          </p>
+    <footer id="contact" className="relative bg-[#0F0F0F] px-6 py-16 text-white sm:px-12 sm:py-24">
+      <div className="mx-auto max-w-6xl">
+        <div className="grid gap-10 lg:grid-cols-[1fr_1.1fr] lg:gap-20">
+          <div>
+            <p className="font-[family-name:var(--font-handwriting)] text-2xl text-zinc-400">Get in Touch</p>
+            <h2 className="mt-3 max-w-xl font-[family-name:var(--font-display)] text-4xl font-extrabold leading-[1.08] tracking-tight sm:text-5xl lg:text-6xl">Let's build something beautiful together.</h2>
+            <p className="mt-6 max-w-md text-base leading-relaxed text-zinc-400 sm:text-lg">Have a project in mind? Tell me what you're working on and how I can help.</p>
+            <div className="mt-8 flex flex-wrap items-center gap-2">
+              <a className="break-all py-3 text-base font-medium underline decoration-zinc-700 underline-offset-4 hover:decoration-white sm:text-xl" href="mailto:iammoeez@gmail.com">iammoeez@gmail.com</a>
+              <button type="button" onClick={copyEmail} aria-label={copied ? "Email copied" : "Copy email address"} className="flex h-11 w-11 items-center justify-center rounded-full border border-zinc-700 hover:bg-zinc-800">{copied ? <Check size={18}/> : <Copy size={18}/>}</button>
+              <span className="text-sm text-zinc-400" aria-live="polite">{copied ? "Copied" : ""}</span>
+            </div>
+            <a href="tel:+923044247985" className="inline-flex min-h-11 items-center text-zinc-400 hover:text-white">+92 304 4247985</a>
+          </div>
+          <form onSubmit={submit} className="rounded-2xl border border-zinc-800 bg-white/[0.02] p-5 sm:p-8" aria-label="Project enquiry" aria-busy={status === "sending"}>
+            <div className="grid gap-5 sm:grid-cols-2">
+              <label className="text-sm font-medium" htmlFor="contact-name">Your name<input className={fieldClass} id="contact-name" name="name" autoComplete="name" required maxLength={100} placeholder="Your name" /></label>
+              <label className="text-sm font-medium" htmlFor="contact-email">Email address<input className={fieldClass} id="contact-email" name="email" type="email" autoComplete="email" required maxLength={254} placeholder="you@example.com" /></label>
+            </div>
+            <label className="mt-5 block text-sm font-medium" htmlFor="contact-message">Tell me about your project<textarea className={`${fieldClass} min-h-40 resize-y`} id="contact-message" name="message" required minLength={10} maxLength={5000} placeholder="What are you building, and what do you need help with?" /></label>
+            <input type="text" name="_gotcha" tabIndex={-1} autoComplete="off" className="hidden" aria-hidden="true" />
+            <button disabled={status === "sending"} className="mt-5 flex min-h-12 w-full items-center justify-center gap-3 rounded-full bg-white px-6 py-3 font-semibold text-black transition-colors hover:bg-zinc-200 disabled:opacity-60" type="submit">{status === "sending" ? "Sending…" : "Send message"}<Send size={18}/></button>
+            <p className={`mt-4 text-sm leading-relaxed ${status === "error" ? "text-amber-200" : "text-zinc-300"}`} role="status" aria-live="polite">{notice}</p>
+          </form>
         </div>
+        <div className="mt-12 grid grid-cols-2 gap-3 border-t border-zinc-800 pt-8 sm:flex sm:flex-wrap sm:justify-center sm:gap-8">
+          {socials.map(({ name, href, Icon }) => <a key={name} href={href} target="_blank" rel="noopener noreferrer" className="flex min-h-12 items-center justify-center gap-2.5 rounded-xl border border-zinc-800 px-3 text-sm font-medium text-zinc-300 hover:border-zinc-500 hover:text-white sm:border-0"><Icon aria-hidden="true" size={21}/>{name}<ArrowUpRight size={14}/></a>)}
+          <a href="https://arc.dev/@moiztahir" target="_blank" rel="noopener noreferrer" className="flex min-h-12 items-center justify-center gap-2.5 rounded-xl border border-zinc-800 px-3 text-sm font-medium text-zinc-300 hover:border-zinc-500 hover:text-white sm:border-0"><img src="/icons/arc.png" alt="" width={24} height={24} className="rounded"/>Arc.dev<ArrowUpRight size={14}/></a>
+        </div>
+        <p className="mt-10 text-center text-xs leading-relaxed text-zinc-500">© {new Date().getFullYear()} Moiz Tahir. All rights reserved.</p>
       </div>
     </footer>
   );
