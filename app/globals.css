@@ -104,3 +104,24 @@ a:focus-visible, button:focus-visible, [role="button"]:focus-visible { outline: 
 }
 
 @media (max-width: 1023px) { .hero-invitation > button { rotate: 0deg; } }
+
+/* One lightweight, seamless row of original brand marks. */
+.toolkit-section { background: #fff; color: #18181b; padding: 72px 0 48px; overflow: hidden; border-top: 1px solid #f4f4f5; text-align: center; }
+.toolkit-heading { padding: 0 24px; }
+.toolkit-window { max-width: 1120px; margin: 32px auto 0; overflow: hidden; mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent); }
+.toolkit-track { display: flex; width: max-content; animation: toolkit-scroll 38s linear infinite; }
+.toolkit-set { display: flex; flex: none; gap: 20px; padding: 18px 20px 18px 0; margin: 0; list-style: none; }
+.toolkit-item { width: 76px; flex: none; display: flex; align-items: center; flex-direction: column; gap: 14px; }
+.toolkit-tile { width: 68px; height: 68px; border: 1px solid #e4e4e7; border-radius: 18px; background: linear-gradient(145deg, #fff, #f4f4f5); box-shadow: 0 8px 16px -7px #18181b40, inset 0 1px 0 #ffffffcc; display: grid; place-items: center; transition: transform 180ms ease, box-shadow 180ms ease; }
+.toolkit-tile img { width: 42px; height: 42px; object-fit: contain; }
+.toolkit-tile--photoshop { background: #001e36; border-color: #001e36; }
+.toolkit-tile--illustrator { background: #ff9a00; border-color: #f29400; }
+.toolkit-tile--aftereffects { background: #00005b; border-color: #00005b; }
+.toolkit-tile--claude { background: #faf0e9; border-color: #ecdfd4; }
+.toolkit-tile--openai { background: #e8f2ed; border-color: #dce9e1; }
+.toolkit-label { color: #71717a; font-size: 11px; font-weight: 500; white-space: nowrap; }
+.toolkit-pause { min-height: 44px; margin-top: 12px; padding: 8px 16px; color: #71717a; font-size: 12px; text-decoration: underline; text-underline-offset: 4px; cursor: pointer; }
+@keyframes toolkit-scroll { to { transform: translateX(-50%); } }
+@media (hover: hover) { .toolkit-window:hover .toolkit-track { animation-play-state: paused !important; } .toolkit-tile:hover { transform: translateY(-5px); box-shadow: 0 12px 20px -7px #18181b40; } }
+@media (min-width: 768px) { .toolkit-section { padding: 88px 0 56px; } .toolkit-tile { width: 76px; height: 76px; border-radius: 21px; } .toolkit-tile img { width: 48px; height: 48px; } .toolkit-set { gap: 24px; padding-right: 24px; } }
+@media (prefers-reduced-motion: reduce) { .toolkit-track { animation: none; width: 100%; } .toolkit-set { flex-wrap: wrap; justify-content: center; width: 100%; padding: 16px 24px; } .toolkit-set[aria-hidden="true"], .toolkit-pause { display: none; } .toolkit-window { mask-image: none; } }

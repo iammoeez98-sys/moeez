@@ -3,7 +3,7 @@
 import { gsap } from "gsap";
 import React, { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import BlurText from "./BlurText";
+
 
 interface CrowdCanvasProps {
   src: string;
@@ -270,7 +270,7 @@ const CrowdCanvas = ({ src, rows = 15, cols = 7 }: CrowdCanvasProps) => {
       if (!canvas) return;
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.save();
-      ctx.scale(window.devicePixelRatio || 1, window.devicePixelRatio || 1);
+      ctx.scale(Math.min(window.devicePixelRatio || 1, 2), Math.min(window.devicePixelRatio || 1, 2));
 
       crowd.forEach((peep) => {
         peep.render(ctx);
@@ -281,7 +281,7 @@ const CrowdCanvas = ({ src, rows = 15, cols = 7 }: CrowdCanvasProps) => {
 
     const resize = () => {
       if (!canvas || !img.complete || !img.naturalWidth) return;
-      const dpr = window.devicePixelRatio || 1;
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
       stage.width = canvas.clientWidth;
       stage.height = canvas.clientHeight;
       canvas.width = stage.width * dpr;
@@ -317,11 +317,13 @@ const CrowdCanvas = ({ src, rows = 15, cols = 7 }: CrowdCanvasProps) => {
           if (entry.isIntersecting) {
             if (!isVisible) {
               isVisible = true;
+              crowd.forEach((peep) => peep.walk?.resume());
               gsap.ticker.add(render);
             }
           } else {
             if (isVisible) {
               isVisible = false;
+              crowd.forEach((peep) => peep.walk?.pause());
               gsap.ticker.remove(render);
             }
           }
@@ -363,7 +365,7 @@ interface CrowdMemberLabel {
 
 const Skiper39 = () => {
   const [mounted, setMounted] = useState(false);
-  const [headlineDone, setHeadlineDone] = useState(false);
+  const headlineDone = true;
   const [isHovered, setIsHovered] = useState(false);
 
   // Easter Egg State
@@ -443,32 +445,15 @@ const Skiper39 = () => {
       </AnimatePresence>
 
       {/* Hero Text Header with BlurText Animation */}
-      {mounted && (
+      {(
         <div
           className="hero-copy absolute top-16 sm:top-24 md:top-28 left-6 sm:left-12 md:left-16 lg:left-24 max-w-[calc(100vw-48px)] sm:max-w-[48vw] lg:max-w-[42vw] xl:max-w-[45vw] z-30 pointer-events-none select-none"
           suppressHydrationWarning
         >
           {/* Animated Hero Headline via BlurText */}
           <h1 className="hero-headline-text font-[family-name:var(--font-display)] font-extrabold text-[24px] sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl text-zinc-950 tracking-tight leading-[1.12] drop-shadow-sm flex flex-col items-start gap-0.5 sm:gap-1">
-            <BlurText
-              text="One face in every crowd"
-              animateBy="words"
-              direction="top"
-              delay={100}
-              stepDuration={0.4}
-              threshold={0.1}
-              className="text-zinc-950"
-            />
-            <BlurText
-              text="that designs the experience."
-              animateBy="words"
-              direction="top"
-              delay={100}
-              stepDuration={0.4}
-              threshold={0.1}
-              className="text-zinc-900"
-              onAnimationComplete={() => setHeadlineDone(true)}
-            />
+            <span>One face in every crowd</span>
+            <span>that designs the experience.</span>
           </h1>
 
           {/* Signature / Attribution Line (Line 3) - Smooth fade in after headline reveal */}
@@ -484,7 +469,7 @@ const Skiper39 = () => {
       )}
 
       {/* Easter Egg Discovery Trigger / Inline Form in Upper-Right Open White Space */}
-      {mounted && (
+      {(
         <div
           className={`hero-invitation absolute top-20 sm:top-24 md:top-28 right-5 sm:right-12 md:right-16 lg:right-24 xl:right-32 z-30 pointer-events-auto select-none transition-opacity duration-700 ${
             headlineDone ? "opacity-100" : "opacity-0"
@@ -537,7 +522,7 @@ const Skiper39 = () => {
       )}
 
       {/* Dominant Foreground Character - Standing flush at bottom baseline with Hover to Wave & Tooltip */}
-      {mounted && (
+      {(
         <div
           className="hero-character absolute bottom-[-8px] sm:bottom-0 left-1/2 sm:left-[66%] md:left-[68%] lg:left-[65%] -translate-x-1/2 z-20 flex flex-col items-center justify-end pointer-events-auto cursor-pointer select-none group p-2"
           onMouseEnter={() => setIsHovered(true)}
@@ -584,8 +569,9 @@ const Skiper39 = () => {
           <div className="hero-character-size relative h-[52vh] sm:h-[55vh] md:h-[60vh] lg:h-[62vh] max-h-[520px] w-auto flex items-end justify-center">
             {/* Both poses share the same scale; their source head-to-body proportions match */}
             <img
-              src="/images/self-character.png"
+              src="/images/self-character.webp"
               alt="Self Character Default"
+              width={650} height={1200} fetchPriority="high" decoding="async"
               className={`h-full w-auto max-w-none scale-[1.15] origin-bottom object-contain object-bottom drop-shadow-[0_0_16px_rgba(255,255,255,0.95)] drop-shadow-[0_0_30px_rgba(255,255,255,0.6)] drop-shadow-[0_16px_32px_rgba(0,0,0,0.22)] transition-opacity duration-200 ease-in-out ${
                 isHovered ? "opacity-0" : "opacity-100"
               }`}
@@ -593,8 +579,9 @@ const Skiper39 = () => {
 
             {/* Waving Pose */}
             <img
-              src="/images/waving-character.png"
+              src="/images/waving-character.webp"
               alt="Self Character Waving"
+              width={750} height={1200} decoding="async" fetchPriority="low"
               className={`absolute bottom-0 left-1/2 -translate-x-[56%] h-full w-auto max-w-none scale-[1.15] origin-bottom object-contain object-bottom drop-shadow-[0_0_16px_rgba(255,255,255,0.95)] drop-shadow-[0_0_30px_rgba(255,255,255,0.6)] drop-shadow-[0_16px_32px_rgba(0,0,0,0.22)] transition-opacity duration-200 ease-in-out ${
                 isHovered ? "opacity-100" : "opacity-0"
               }`}
