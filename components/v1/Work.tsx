@@ -295,7 +295,7 @@ export function Work() {
                       fill
                       sizes="500px"
                       unoptimized
-                      priority={idx <= 2}
+                      loading="lazy"
                       className="object-cover object-center transition-transform duration-700 ease-out"
                     />
 

@@ -20,7 +20,7 @@ const cardsData: ProcessCardData[] = [
     number: "01",
     titleLine1: "Discover",
     titleLine2: "& Research",
-    imageSrc: "/images/process/3.png", // thinking, hand on chin
+    imageSrc: "/images/process/3.webp", // thinking, hand on chin
     gradientClass: "from-sky-100 via-teal-50 to-emerald-100",
     imageScaleClass: "scale-[1.28] sm:scale-[1.12] origin-top group-hover:scale-[1.30] sm:group-hover:scale-[1.16]",
   },
@@ -28,7 +28,7 @@ const cardsData: ProcessCardData[] = [
     number: "02",
     titleLine1: "Design",
     titleLine2: "& Systems",
-    imageSrc: "/images/process/2.png", // sketching with pencil & notebook
+    imageSrc: "/images/process/2.webp", // sketching with pencil & notebook
     gradientClass: "from-amber-100 via-rose-100 to-pink-100",
     imageScaleClass: "scale-[1.02] sm:scale-[0.96] origin-top translate-y-1 group-hover:scale-[1.06] sm:group-hover:scale-[1.00]",
   },
@@ -36,7 +36,7 @@ const cardsData: ProcessCardData[] = [
     number: "03",
     titleLine1: "Prototype",
     titleLine2: "& Iterate",
-    imageSrc: "/images/process/1.png", // holding tablet/phone looking down
+    imageSrc: "/images/process/1.webp", // holding tablet/phone looking down
     gradientClass: "from-violet-100 via-purple-100 to-indigo-100",
     imageScaleClass: "scale-[1.18] sm:scale-[1.12] origin-top group-hover:scale-[1.22] sm:group-hover:scale-[1.16]",
   },
@@ -44,7 +44,7 @@ const cardsData: ProcessCardData[] = [
     number: "04",
     titleLine1: "Deliver",
     titleLine2: "& Handoff",
-    imageSrc: "/images/process/4.png", // presenting box with both hands
+    imageSrc: "/images/process/4.webp", // presenting box with both hands
     gradientClass: "from-emerald-100 via-green-100 to-lime-100",
     imageScaleClass: "scale-[1.18] sm:scale-[1.12] origin-top group-hover:scale-[1.22] sm:group-hover:scale-[1.16]",
   },
@@ -106,7 +106,7 @@ export function Process() {
                   alt={`${card.titleLine1} ${card.titleLine2}`}
                   fill
                   sizes="(max-width: 768px) 100vw, 50vw"
-                  priority={index <= 1}
+                  loading="lazy"
                   unoptimized
                   className={`object-cover object-top mix-blend-multiply transition-transform duration-500 z-10 ${card.imageScaleClass}`}
                 />
